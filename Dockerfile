@@ -22,12 +22,14 @@ RUN pip install uv
 
 # ARG to specify the requirements file to use
 ARG REQUIREMENTS_FILE=requirements/prod.txt
+ARG TEST_REQUIREMENTS_FILE=requirements/test.txt
 
 # Copy requirements files
 COPY requirements/ /app/requirements/
 
 # Install dependencies into the virtual environment
 RUN uv pip sync /app/${REQUIREMENTS_FILE}
+RUN uv pip sync /app/${TEST_REQUIREMENTS_FILE}
 
 
 # --- Final Stage ---
