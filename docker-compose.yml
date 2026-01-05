@@ -1,0 +1,118 @@
+#
+# Docker Compose for Local Development
+#
+# This file defines the services, networks, and volumes needed to run the
+# full application stack in a local development environment.
+#
+# Usage:
+#   docker-compose up -d
+#   docker-compose down
+
+services:
+  # Web Service (Django Application)
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - REQUIREMENTS_FILE=requirements/dev.txt
+    # Override the default command to use the development server
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      # Mount the application code directory for live reloading
+      - .:/home/appuser/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.development
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+
+  # Database Service (PostgreSQL)
+  db:
+    image: postgres:15
+    volumes:
+      # Persist database data across container restarts
+      - postgres_data:/var/lib/postgresql/data/
+    # Environment variables are loaded from the .env file
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+
+  # Cache & Broker Service (Redis)
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  # Celery Worker Service
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - REQUIREMENTS_FILE=requirements/dev.txt
+    # Command to start a Celery worker
+    command: celery -A config.celery_app worker -l info
+    volumes:
+      - .:/home/appuser/app
+    env_file:
+      - .env
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.development
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - redis
+      - db
+
+  # Celery Beat Service (for scheduled tasks)
+  celery_beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - REQUIREMENTS_FILE=requirements/dev.txt
+    # Command to start Celery Beat scheduler
+    command: celery -A config.celery_app beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - .:/home/appuser/app
+    env_file:
+      - .env
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.development
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - redis
+      - db
+
+  # Locust Load Testing Service
+  locust:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - REQUIREMENTS_FILE=requirements/test.txt
+    command: locust -f scripts/load_test.py --host http://web:8000 --web-host 0.0.0.0
+    volumes:
+      - .:/home/appuser/app
+    ports:
+      - "8089:8089" # Expose Locust web UI
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.development
+    depends_on:
+      - web
+
+# Define named volumes for data persistence
+volumes:
+  postgres_data:

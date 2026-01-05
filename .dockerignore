@@ -1,0 +1,90 @@
+# Docker build optimization: exclude files/directories from image context
+# These files don't need to be copied into the Docker image, reducing build time and image size.
+# Reference: https://docs.docker.com/engine/reference/builder/#dockerignore-file
+
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# Virtual environments
+.venv
+venv
+env
+ENV
+
+# Python cache
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+htmlcov/
+
+# IDE and editor
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+.sublime-project
+.sublime-workspace
+*.iml
+.pylintrc
+
+# Testing
+.pytest_cache
+.mypy_cache
+.dmypy.json
+dmypy.json
+.pyre/
+tests/
+pytest.ini
+
+# Development
+.env
+.env.local
+.env.*.local
+*.log
+local_settings.py
+
+# Documentation
+docs/
+*.md
+LICENSE
+
+# OS specific
+.DS_Store
+Thumbs.db
+*.swp
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+azure-pipelines.yml
+Jenkinsfile
+
+# Miscellaneous
+node_modules/
+npm-debug.log
+yarn-error.log
+.editorconfig
+.dockerignore
+Makefile
+
+# Keep only necessary files for production image:
+# - Python source code (apps/, config/)
+# - Django static assets (if any)
+# - Templates (if needed at runtime)
