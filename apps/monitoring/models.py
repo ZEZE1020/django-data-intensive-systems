@@ -6,9 +6,11 @@ Currently not needed; metrics and logs are external (Prometheus, ELK).
 """
 
 from django.db import models
+from apps.core.mixins import TenantAwareModel
+from apps.core.managers import TenantAwareManager
 
 
-class MonitoringConfig(models.Model):
+class MonitoringConfig(TenantAwareModel):
     """
     Configuration for monitoring and alerting.
     
@@ -16,6 +18,8 @@ class MonitoringConfig(models.Model):
     """
 
     name = models.CharField(max_length=255)
+
+    objects = TenantAwareManager()
 
     class Meta:
         verbose_name = 'Monitoring Config'
