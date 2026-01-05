@@ -192,8 +192,6 @@ class OrderLineItem(TimeStampedModel):
         help_text='Additional item data (attributes, options, etc.)',
     )
 
-    objects = CoreManager()
-
     class Meta:
         verbose_name = 'Order Line Item'
         verbose_name_plural = 'Order Line Items'
@@ -302,22 +300,6 @@ class Payment(TimeStampedModel, IdempotentModel):
         blank=True,
         help_text='When payment was refunded',
     )
-
-    objects = CoreManager()
-
-    class Meta:
-        verbose_name = 'Payment'
-        verbose_name_plural = 'Payments'
-        ordering = ['-created_at']
-        indexes = [
-            models.Index(fields=['order']),
-            models.Index(fields=['status']),
-            models.Index(fields=['idempotency_key']),
-            models.Index(fields=['created_at', 'status']),
-        ]
-
-    def __str__(self):
-        return f'Payment for {self.order.order_number}: {self.amount} {self.status}'
 
     def can_retry(self, max_attempts=3):
         """Check if payment can be retried."""
