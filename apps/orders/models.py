@@ -155,8 +155,6 @@ class OrderLineItem(TimeStampedModel, TenantAwareModel):
     Decoupled from Product model to preserve historical pricing.
     """
 
-    objects = TenantAwareManager() # Add this line
-
     order = models.ForeignKey(
         Order,
         on_delete=models.CASCADE,
@@ -218,8 +216,6 @@ class Payment(TimeStampedModel, IdempotentModel, TenantAwareModel):
     Tracks payment attempts, status, method, and retry logic.
     Idempotent (via idempotency_key) to prevent duplicate charges.
     """
-
-    objects = TenantAwareManager()
 
     PAYMENT_STATUS_CHOICES = [
         ('pending', 'Pending'),
