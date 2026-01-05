@@ -1,0 +1,207 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "django-data-intensive-systems"
+version = "0.1.0"
+description = "Production-grade reference project for data-intensive systems using Django. Demonstrates patterns for high-throughput sensor ingestion, e-commerce transactions, and event-driven architectures."
+readme = "README.md"
+license = "MIT"
+authors = [
+    {name = "Godfrey Ogembo", email = "ogembogodfrey75@gmail.com"}
+]
+requires-python = ">=3.13"
+keywords = [
+    "django",
+    "data-intensive",
+    "event-driven",
+    "high-throughput",
+    "sensor-data",
+    "e-commerce",
+    "celery",
+    "postgresql",
+    "redis"
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Web Environment",
+    "Framework :: Django :: 5.2",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: System :: Monitoring",
+]
+
+# Core dependencies: always required
+dependencies = [
+    "Django==5.2.9",
+    "djangorestframework==3.15.0",
+    "psycopg2-binary>=2.9.9",
+    "redis>=5.0.0",
+    "celery>=5.3.4",
+    "python-dotenv>=1.0.0",
+    "pytz>=2024.1",
+]
+
+[project.optional-dependencies]
+# Development: debugging, code quality, local utilities
+dev = [
+    "django-debug-toolbar>=4.2",
+    "django-extensions>=3.2.3",
+    "black>=24.1.0",
+    "isort>=5.13.2",
+    "flake8>=7.0.0",
+    "mypy>=1.7.1",
+    "django-stubs>=4.2.6",
+]
+
+# Testing: pytest ecosystem
+test = [
+    "pytest>=7.4.3",
+    "pytest-django>=4.7.0",
+    "pytest-cov>=4.1.0",
+    "factory-boy>=3.3.0",
+    "faker>=22.0.0",
+    "locust>=2.17.0",
+]
+
+# Production: deployment, monitoring, reliability
+prod = [
+    "gunicorn>=21.2.0",
+    "whitenoise>=6.6.0",
+    "sentry-sdk>=1.39.1",
+    "prometheus-client>=0.19.0",
+]
+
+# All extras combined
+all = [
+    "django-data-intensive-systems[dev,test,prod]",
+]
+
+[project.urls]
+Homepage = "https://github.com/ZEZE1020/django-data-intensive-systems"
+Documentation = "https://github.com/ZEZE1020/django-data-intensive-systems/wiki"
+Repository = "https://github.com/ZEZE1020/django-data-intensive-systems.git"
+"Bug Tracker" = "https://github.com/ZEZE1020/django-data-intensive-systems/issues"
+
+[tool.uv]
+# uv-specific configuration
+dev-dependencies = [
+    "black>=24.1.0",
+    "isort>=5.13.2",
+    "flake8>=7.0.0",
+    "mypy>=1.7.1",
+    "pytest>=7.4.3",
+    "pytest-django>=4.7.0",
+    "pytest-cov>=4.1.0",
+    "factory-boy>=3.3.0",
+    "faker>=22.0.0",
+    "django-debug-toolbar>=4.2",
+    "django-extensions>=3.2.3",
+]
+
+[tool.pytest.ini_options]
+# pytest configuration
+DJANGO_SETTINGS_MODULE = "config.settings.development"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+testpaths = ["tests"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=apps",
+    "--cov-report=html",
+    "--cov-report=term-missing:skip-covered",
+    "--cov-fail-under=80",
+    "-v",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "models: marks tests for Django models",
+    "views: marks tests for Django views",
+    "api: marks tests for API endpoints",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+
+[tool.black]
+# Code formatter configuration
+line-length = 100
+target-version = ["py313"]
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | migrations
+)/
+'''
+
+[tool.isort]
+# Import sorter configuration
+profile = "black"
+line_length = 100
+skip_glob = ["*/migrations/*"]
+known_django = ["django"]
+known_first_party = ["config", "apps"]
+sections = ["FUTURE", "STDLIB", "DJANGO", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+
+[tool.mypy]
+# Type checker configuration
+python_version = "3.13"
+check_untyped_defs = true
+ignore_missing_imports = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_configs = true
+warn_unused_ignores = true
+plugins = ["mypy_django_plugin.main"]
+exclude = ["migrations/", ".venv/"]
+
+[tool.django-stubs]
+django_settings_module = "config.settings.development"
+
+[tool.coverage.run]
+# Coverage configuration
+branch = true
+source = ["apps"]
+omit = [
+    "*/migrations/*",
+    "*/tests/*",
+    "*/test_*.py",
+    "manage.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
