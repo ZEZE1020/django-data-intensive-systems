@@ -81,3 +81,18 @@ class SoftDeleteAdminMixin(CoreAdminMixin):
         )
 
     action_permanently_delete.short_description = 'Permanently delete selected items'
+
+
+User = get_user_model()
+
+class CustomUserAdmin(UserAdmin):
+    list_display = UserAdmin.list_display + ('tenant_id',)
+    fieldsets = UserAdmin.fieldsets + (
+        ('Tenant Information', {'fields': ('tenant_id',)}),
+    )
+    add_fieldsets = UserAdmin.add_fieldsets + (
+        ('Tenant Information', {'fields': ('tenant_id',)}),
+    )
+
+admin.site.register(User, CustomUserAdmin)
+
