@@ -1,0 +1,8 @@
+# Production dependencies
+-c base.txt
+-r base.in
+
+# Prod dependencies from pyproject.toml
+gunicorn>=21.2.0
+whitenoise>=6.6.0
+sentry-sdk>=1.39.1
