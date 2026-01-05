@@ -18,7 +18,7 @@ from django.core.validators import MinValueValidator
 from django.db import models
 
 from apps.core.mixins import TimeStampedModel, SoftDeleteModel, VersionedModel, IdempotentModel, TenantAwareModel
-from apps.core.managers import TenantAwareManager
+from apps.core.managers import TenantAwareManager, CoreManager
 
 
 class Order(TimeStampedModel, SoftDeleteModel, VersionedModel, TenantAwareModel):
