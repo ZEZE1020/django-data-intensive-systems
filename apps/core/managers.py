@@ -128,33 +128,6 @@ class CoreManager(models.Manager):
         return self.get_queryset().newest_first()
 
 
-class TenantAwareQuerySet(CoreQuerySet):
-    """
-    QuerySet that automatically filters by the current tenant_id.
-    """
-    pass
-
-
-class TenantAwareManager(models.Manager):
-    """
-    Manager that automatically filters queries by the current tenant_id.
-    """
-    def get_queryset(self):
-        current_tenant_id = get_current_tenant()
-        if current_tenant_id:
-            return TenantAwareQuerySet(self.model, using=self._db).filter(tenant_id=current_tenant_id)
-        # If tenant_id is not set, we return an empty queryset to prevent data leakage.
-        # This can be refined based on application requirements (e.g., superuser context)
-        return TenantAwareQuerySet(self.model, using=self._db).none()
-
-    def without_tenant_filter(self):
-        """
-        Returns a queryset that bypasses the automatic tenant filtering.
-        Use with extreme caution.
-        """
-        return TenantAwareQuerySet(self.model, using=self._db)
-
-
 class SoftDeleteQuerySet(CoreQuerySet):
     """
     QuerySet that provides methods for filtering soft-deleted items.
@@ -176,3 +149,42 @@ class SoftDeleteManager(models.Manager):
     def deleted_only(self):
         """Return only soft-deleted items."""
         return SoftDeleteQuerySet(self.model, using=self._db).deleted()
+
+
+class TenantAwareQuerySet(CoreQuerySet):
+    """
+    QuerySet that automatically filters by the current tenant_id.
+    """
+    pass
+
+
+class TenantAwareManager(models.Manager): # Inherit from models.Manager directly
+    """
+    Manager that automatically filters queries by the current tenant_id
+    and provides soft-deletion methods.
+    """
+    def get_queryset(self):
+        current_tenant_id = get_current_tenant()
+        if current_tenant_id:
+            return TenantAwareQuerySet(self.model, using=self._db).filter(tenant_id=current_tenant_id)
+        # If tenant_id is not set, we return an empty queryset to prevent data leakage.
+        return TenantAwareQuerySet(self.model, using=self._db).none()
+
+    def active(self):
+        """Return only non-deleted items, with tenant filtering."""
+        return self.get_queryset().active()
+
+    def deleted(self):
+        """Return only soft-deleted items, with tenant filtering."""
+        return self.get_queryset().deleted()
+
+    def restore(self):
+        """Restore soft-deleted items, with tenant filtering."""
+        return self.get_queryset().restore()
+
+    def without_tenant_filter(self):
+        """
+        Returns a queryset that bypasses the automatic tenant filtering.
+        Use with extreme caution.
+        """
+        return TenantAwareQuerySet(self.model, using=self._db)

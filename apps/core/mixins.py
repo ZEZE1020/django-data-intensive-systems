@@ -97,6 +97,8 @@ class TenantAwareModel(models.Model):
     """
 
     tenant_id = models.UUIDField(
+        null=True,
+        blank=True,
         db_index=True,
         help_text='Tenant identifier for multi-tenancy',
     )
