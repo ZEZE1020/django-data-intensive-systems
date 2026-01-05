@@ -147,13 +147,15 @@ class Order(TimeStampedModel, SoftDeleteModel, VersionedModel, TenantAwareModel)
         )
 
 
-class OrderLineItem(TimeStampedModel):
+class OrderLineItem(TimeStampedModel, TenantAwareModel):
     """
     Individual line item in an order.
 
     Stores product quantity and price snapshot at order time.
     Decoupled from Product model to preserve historical pricing.
     """
+
+    objects = TenantAwareManager() # Add this line
 
     order = models.ForeignKey(
         Order,
@@ -209,13 +211,15 @@ class OrderLineItem(TimeStampedModel):
         super().save(*args, **kwargs)
 
 
-class Payment(TimeStampedModel, IdempotentModel):
+class Payment(TimeStampedModel, IdempotentModel, TenantAwareModel):
     """
     Payment transaction.
 
     Tracks payment attempts, status, method, and retry logic.
     Idempotent (via idempotency_key) to prevent duplicate charges.
     """
+
+    objects = TenantAwareManager()
 
     PAYMENT_STATUS_CHOICES = [
         ('pending', 'Pending'),
