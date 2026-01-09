@@ -75,6 +75,10 @@ django==5.2.9
     #   django-stubs
     #   django-stubs-ext
     #   djangorestframework
+django-cors-headers==4.6.0
+    # via -r requirements/base.in
+django-csp==3.8.0
+    # via -r requirements/base.in
 django-debug-toolbar==6.1.0
     # via
     #   -c requirements/dev.txt
