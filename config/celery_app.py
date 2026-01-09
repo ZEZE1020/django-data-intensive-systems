@@ -75,12 +75,6 @@ app.conf.task_routes = {
 app.conf.task_time_limit = 30 * 60
 app.conf.task_soft_time_limit = 25 * 60
 
-@app.task(bind=True)
-def debug_task(self):
-    """Debug task for testing Celery setup."""
-    print(f'Request: {self.request!r}')
-
-
 # TODO: Add task error notifications (email, Sentry)
 # TODO: Add task retry strategies with exponential backoff
 # TODO: Add task result backend cleanup

@@ -7,12 +7,13 @@ The `urlpatterns` list routes URLs to views. For more information please see:
 
 import os
 
+from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
     # Admin interface
-    path('admin/', admin.site.urls),
+    path(os.getenv('DJANGO_ADMIN_URL', 'admin/'), admin.site.urls),
 
     # Health checks and monitoring
     path('', include('apps.monitoring.urls')),
@@ -26,7 +27,7 @@ urlpatterns = [
 # path('api/docs/', include_docs_urls(...))
 
 # Debug toolbar in development
-if os.getenv('DEBUG', 'True') == 'True':
+if settings.DEBUG:
     import debug_toolbar
     urlpatterns = [
         path('__debug__/', include(debug_toolbar.urls)),
