@@ -17,19 +17,28 @@ services:
       args:
         - REQUIREMENTS_FILE=requirements/dev.txt
     # Override the default command to use the development server
-    command: python manage.py runserver 0.0.0.0:8000
+    command: sh -c "python manage.py makemigrations core && python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     ports:
       - "8000:8000"
     env_file:
       - .env
     environment:
-      - DJANGO_SETTINGS_MODULE=config.settings.development
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - "DJANGO_SETTINGS_MODULE=config.settings.development"
+      - "DB_ENGINE=django.db.backends.postgresql"
+      - "DB_NAME=django_data_intensive"
+      - "DB_USER=postgres"
+      - "DB_PASSWORD=postgres"
+      - "DB_HOST=db"
+      - "REDIS_URL=redis://redis:6379/0"
+      - "LOG_FORMAT=simple"
+      - "CELERY_BROKER_URL=redis://redis:6379/0"
+      - "CELERY_RESULT_BACKEND=redis://redis:6379/0"
+      - "ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,web"
     depends_on:
       - db
       - redis
+    volumes:
+      - .:/home/appuser/app
 
   # Database Service (PostgreSQL)
   db:
@@ -40,6 +49,10 @@ services:
     # Environment variables are loaded from the .env file
     env_file:
       - .env
+    environment:
+      - POSTGRES_DB=django_data_intensive
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     ports:
       - "5432:5432"
 
@@ -63,10 +76,16 @@ services:
     env_file:
       - .env
     environment:
-      - DJANGO_SETTINGS_MODULE=config.settings.development
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - "DJANGO_SETTINGS_MODULE=config.settings.development"
+      - "DB_ENGINE=django.db.backends.postgresql"
+      - "DB_NAME=django_data_intensive"
+      - "DB_USER=postgres"
+      - "DB_PASSWORD=postgres"
+      - "DB_HOST=db"
+      - "REDIS_URL=redis://redis:6379/0"
+      - "LOG_FORMAT=simple"
+      - "CELERY_BROKER_URL=redis://redis:6379/0"
+      - "CELERY_RESULT_BACKEND=redis://redis:6379/0"
     depends_on:
       - redis
       - db
@@ -85,10 +104,16 @@ services:
     env_file:
       - .env
     environment:
-      - DJANGO_SETTINGS_MODULE=config.settings.development
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - "DJANGO_SETTINGS_MODULE=config.settings.development"
+      - "DB_ENGINE=django.db.backends.postgresql"
+      - "DB_NAME=django_data_intensive"
+      - "DB_USER=postgres"
+      - "DB_PASSWORD=postgres"
+      - "DB_HOST=db"
+      - "REDIS_URL=redis://redis:6379/0"
+      - "LOG_FORMAT=simple"
+      - "CELERY_BROKER_URL=redis://redis:6379/0"
+      - "CELERY_RESULT_BACKEND=redis://redis:6379/0"
     depends_on:
       - redis
       - db
@@ -99,16 +124,24 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - REQUIREMENTS_FILE=requirements/test.txt
+        - REQUIREMENTS_FILE=requirements/dev.txt
     command: locust -f scripts/load_test.py --host http://web:8000 --web-host 0.0.0.0
     volumes:
       - .:/home/appuser/app
     ports:
       - "8089:8089" # Expose Locust web UI
     environment:
-      - DJANGO_SETTINGS_MODULE=config.settings.development
+      - "DJANGO_SETTINGS_MODULE=config.settings.development"
+      - "DB_ENGINE=django.db.backends.postgresql"
+      - "DB_NAME=django_data_intensive"
+      - "DB_USER=postgres"
+      - "DB_PASSWORD=postgres"
+      - "DB_HOST=db"
+      - "REDIS_URL=redis://redis:6379/0"
+      - "LOG_FORMAT=simple"
     depends_on:
       - web
+      - db
 
 # Define named volumes for data persistence
 volumes:
