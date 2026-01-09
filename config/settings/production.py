@@ -33,8 +33,11 @@ MIDDLEWARE = [m for m in MIDDLEWARE
               if m not in ['debug_toolbar.middleware.DebugToolbarMiddleware']]
 
 # Database: PostgreSQL required in production
-if os.getenv('DB_ENGINE') is None or os.getenv('DB_ENGINE') == 'django.db.backends.sqlite3':
+if DATABASES['default']['ENGINE'] != 'django.db.backends.postgresql':
     raise ValueError('PostgreSQL required in production. Set DB_ENGINE=django.db.backends.postgresql')
+
+# Set persistent connections for performance (DDIA: Efficiency)
+DATABASES['default']['CONN_MAX_AGE'] = 600  # Keep connections alive for 10 minutes
 
 # Cache: Redis required in production
 CACHES = {
@@ -66,11 +69,11 @@ SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_BROWSER_XSS_FILTER = True
-SECURE_CONTENT_SECURITY_POLICY = {
-    'default-src': ("'self'",),
-    'style-src': ("'self'", "'unsafe-inline'"),
-    'script-src': ("'self'",),
-}
+
+# Content Security Policy (CSP) - Production overrides
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_STYLE_SRC = ("'self'",)  # Remove unsafe-inline in production if possible
+CSP_SCRIPT_SRC = ("'self'",)
 
 # HSTS: Strict Transport Security
 SECURE_HSTS_SECONDS = 31536000  # 1 year

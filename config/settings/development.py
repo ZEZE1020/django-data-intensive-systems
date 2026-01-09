@@ -15,7 +15,7 @@ from .base import *  # noqa: F401, F403
 
 # Development: enable debug mode
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,0.0.0.0').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,0.0.0.0,*').split(',')
 
 # Development middleware additions
 INSTALLED_APPS += [
@@ -74,3 +74,8 @@ SENTRY_DSN = ''
 # TODO: Add Sentry initialization when needed
 # import sentry_sdk
 # sentry_sdk.init(dsn='') if SENTRY_DSN else None
+
+# REST Framework: Enable Basic Authentication for easier load testing
+# This allows Locust to authenticate using (username, password)
+if 'DEFAULT_AUTHENTICATION_CLASSES' in REST_FRAMEWORK:
+    REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'].insert(0, 'rest_framework.authentication.BasicAuthentication')

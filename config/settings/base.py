@@ -27,6 +27,9 @@ if not SECRET_KEY:
 # Application definition
 # Core Django apps + third-party + project apps
 INSTALLED_APPS = [
+    # Project apps (Core first for custom user model)
+    'apps.core.apps.CoreConfig',
+
     # Django core
     'django.contrib.admin',
     'django.contrib.auth',
@@ -37,15 +40,17 @@ INSTALLED_APPS = [
 
     # Third-party
     'rest_framework',
+    'corsheaders',  # Added for CORS support
+    'csp',          # Added for Content Security Policy
 
     # Project apps (order matters for migrations)
-    'apps.core.apps.CoreConfig',
     'apps.sensors.apps.SensorsConfig',
     'apps.orders.apps.OrdersConfig',
     'apps.monitoring.apps.MonitoringConfig',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # CORS must be early
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',  # Static files in production
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -55,6 +60,7 @@ MIDDLEWARE = [
     'apps.core.middleware.TenantContextMiddleware', # Added for multi-tenancy
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'csp.middleware.CSPMiddleware',  # Content Security Policy
     'apps.monitoring.middleware.MetricsMiddleware',
     'apps.monitoring.middleware.RequestLoggingMiddleware',
     'apps.monitoring.middleware.RequestTracingMiddleware',
@@ -83,14 +89,26 @@ ASGI_APPLICATION = 'config.asgi.application'
 
 # Database configuration
 # Uses PostgreSQL in production, SQLite in development
-# GEMINI_AGENT: Temporarily forcing SQLite to resolve database connection issues.
-# This allows the application to run without a PostgreSQL server.
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if os.getenv('DB_ENGINE') in ['django.db.backends.postgresql', 'postgresql', 'postgres']:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('DB_NAME', 'django_data_intensive'),
+            'USER': os.getenv('DB_USER', 'postgres'),
+            'PASSWORD': os.getenv('DB_PASSWORD', ''),
+            'HOST': os.getenv('DB_HOST', 'db'),
+            'PORT': os.getenv('DB_PORT', '5432'),
+            'CONN_MAX_AGE': int(os.getenv('CONN_MAX_AGE', 0)),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+            'CONN_MAX_AGE': 0,  # Default to 0 (close after request), override in prod
+        }
+    }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -251,8 +269,17 @@ SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
 SECURE_BROWSER_XSS_FILTER = True
-SECURE_CONTENT_SECURITY_POLICY = True
 X_FRAME_OPTIONS = 'DENY'
+
+# Content Security Policy (CSP) Defaults
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
+CSP_SCRIPT_SRC = ("'self'",)
+CSP_IMG_SRC = ("'self'", "data:")
+CSP_FONT_SRC = ("'self'",)
+
+# CORS Defaults
+CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:3000').split(',')
 
 # Email configuration
 EMAIL_BACKEND = os.getenv(
