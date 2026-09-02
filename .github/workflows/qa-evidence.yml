@@ -35,7 +35,13 @@ jobs:
           mkdir -p site/reports site/performance
           chmod -R 777 site
           docker compose up -d db redis web
-          timeout 90 sh -c 'until curl --fail --silent http://localhost:8000/health/; do sleep 2; done'
+          timeout 180 sh -c 'until curl --fail --silent http://localhost:8000/health/; do sleep 2; done' || {
+            echo 'Health check failed. Compose status:'
+            docker compose ps --all
+            echo 'Web logs:'
+            docker compose logs --no-color web
+            exit 1
+          }
       - name: Run tests and collect reports
         run: |
           docker compose exec -T web pytest -v \

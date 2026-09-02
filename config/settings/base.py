@@ -152,6 +152,9 @@ AUTH_USER_MODEL = 'core.CustomUser'
 
 # Logging configuration
 # Structured logging with JSON output for production
+LOGS_DIR = BASE_DIR / 'logs'
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -185,7 +188,7 @@ LOGGING = {
         'file': {
             'level': 'WARNING',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': BASE_DIR / 'logs' / 'django.log',
+            'filename': LOGS_DIR / 'django.log',
             'maxBytes': 10485760,  # 10MB
             'backupCount': 10,
             'formatter': 'json',
