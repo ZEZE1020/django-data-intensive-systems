@@ -30,9 +30,6 @@ COPY requirements/ /app/requirements/
 
 # Install dependencies into the virtual environment
 RUN uv pip sync /app/${REQUIREMENTS_FILE}
-RUN uv pip sync /app/${TEST_REQUIREMENTS_FILE}
-
-
 # --- Final Stage ---
 # This stage copies the application code and the virtual environment
 # from the builder stage to create the final, lean image.

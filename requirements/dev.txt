@@ -8,6 +8,7 @@ asgiref==3.11.0
     # via
     #   -c requirements/base.txt
     #   django
+    #   django-cors-headers
 billiard==4.2.4
     # via
     #   -c requirements/base.txt
@@ -38,10 +39,14 @@ click-repl==0.3.0
     # via
     #   -c requirements/base.txt
     #   celery
+coverage==7.16.0
+    # via pytest-cov
 django==5.2.9
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.in
+    #   django-cors-headers
+    #   django-csp
     #   django-debug-toolbar
     #   django-extensions
     #   django-stubs
@@ -49,7 +54,7 @@ django==5.2.9
     #   djangorestframework
 django-cors-headers==4.6.0
     # via -r requirements/base.in
-django-csp==3.8.0
+django-csp==3.8
     # via -r requirements/base.in
 django-debug-toolbar==6.1.0
     # via -r requirements/dev.in
@@ -59,12 +64,18 @@ django-stubs==5.2.8
     # via -r requirements/dev.in
 django-stubs-ext==5.2.8
     # via django-stubs
-djangorestframework==3.15.0
+djangorestframework==3.15.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.in
+factory-boy==3.3.3
+    # via -r requirements/dev.in
+faker==40.38.0
+    # via factory-boy
 flake8==7.3.0
     # via -r requirements/dev.in
+iniconfig==2.3.0
+    # via pytest
 isort==7.0.0
     # via -r requirements/dev.in
 kombu==5.6.2
@@ -86,12 +97,17 @@ packaging==25.0
     #   -c requirements/base.txt
     #   black
     #   kombu
+    #   pytest
 pathspec==0.12.1
     # via
     #   black
     #   mypy
 platformdirs==4.5.1
     # via black
+pluggy==1.6.0
+    # via
+    #   pytest
+    #   pytest-cov
 prometheus-client==0.23.1
     # via
     #   -c requirements/base.txt
@@ -108,6 +124,20 @@ pycodestyle==2.14.0
     # via flake8
 pyflakes==3.4.0
     # via flake8
+pygments==2.21.0
+    # via pytest
+pytest==9.1.1
+    # via
+    #   -r requirements/dev.in
+    #   pytest-cov
+    #   pytest-django
+    #   pytest-mock
+pytest-cov==7.1.0
+    # via -r requirements/dev.in
+pytest-django==4.14.0
+    # via -r requirements/dev.in
+pytest-mock==3.15.1
+    # via -r requirements/dev.in
 python-dateutil==2.9.0.post0
     # via
     #   -c requirements/base.txt

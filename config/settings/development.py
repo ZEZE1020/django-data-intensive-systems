@@ -47,10 +47,11 @@ CACHES = {
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 # Logging: More verbose in development
-LOGGING['handlers']['console']['level'] = 'DEBUG'
-LOGGING['loggers']['django']['level'] = 'DEBUG'
-LOGGING['loggers']['apps']['level'] = 'DEBUG'
-logging.getLogger('django.db.backends').setLevel(logging.DEBUG)
+if DEBUG:
+    LOGGING['handlers']['console']['level'] = 'DEBUG'
+    LOGGING['loggers']['django']['level'] = 'DEBUG'
+    LOGGING['loggers']['apps']['level'] = 'DEBUG'
+    logging.getLogger('django.db.backends').setLevel(logging.DEBUG)
 
 # Security: Disable in development
 SECURE_SSL_REDIRECT = False

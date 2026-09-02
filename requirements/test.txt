@@ -10,6 +10,7 @@ asgiref==3.11.0
     #   -c requirements/base.txt
     #   -c requirements/dev.txt
     #   django
+    #   django-cors-headers
 bidict==0.23.1
     # via python-socketio
 billiard==4.2.4
@@ -63,22 +64,30 @@ click-repl==0.3.0
     #   celery
 configargparse==1.7.1
     # via locust
-coverage==7.13.1
-    # via pytest-cov
+coverage==7.16.0
+    # via
+    #   -c requirements/dev.txt
+    #   pytest-cov
 django==5.2.9
     # via
     #   -c requirements/base.txt
     #   -c requirements/dev.txt
     #   -r requirements/base.in
+    #   django-cors-headers
+    #   django-csp
     #   django-debug-toolbar
     #   django-extensions
     #   django-stubs
     #   django-stubs-ext
     #   djangorestframework
 django-cors-headers==4.6.0
-    # via -r requirements/base.in
-django-csp==3.8.0
-    # via -r requirements/base.in
+    # via
+    #   -c requirements/dev.txt
+    #   -r requirements/base.in
+django-csp==3.8
+    # via
+    #   -c requirements/dev.txt
+    #   -r requirements/base.in
 django-debug-toolbar==6.1.0
     # via
     #   -c requirements/dev.txt
@@ -95,15 +104,19 @@ django-stubs-ext==5.2.8
     # via
     #   -c requirements/dev.txt
     #   django-stubs
-djangorestframework==3.15.0
+djangorestframework==3.15.2
     # via
     #   -c requirements/base.txt
     #   -c requirements/dev.txt
     #   -r requirements/base.in
 factory-boy==3.3.3
-    # via -r requirements/test.in
-faker==40.1.0
     # via
+    #   -c requirements/dev.txt
+    #   -r requirements/dev.in
+    #   -r requirements/test.in
+faker==40.38.0
+    # via
+    #   -c requirements/dev.txt
     #   -r requirements/test.in
     #   factory-boy
 flake8==7.3.0
@@ -132,7 +145,9 @@ h11==0.16.0
 idna==3.11
     # via requests
 iniconfig==2.3.0
-    # via pytest
+    # via
+    #   -c requirements/dev.txt
+    #   pytest
 isort==7.0.0
     # via
     #   -c requirements/dev.txt
@@ -190,6 +205,7 @@ platformdirs==4.5.1
     #   black
 pluggy==1.6.0
     # via
+    #   -c requirements/dev.txt
     #   pytest
     #   pytest-cov
 prometheus-client==0.23.1
@@ -217,18 +233,34 @@ pyflakes==3.4.0
     # via
     #   -c requirements/dev.txt
     #   flake8
-pygments==2.19.2
-    # via pytest
-pytest==9.0.2
+pygments==2.21.0
     # via
+    #   -c requirements/dev.txt
+    #   pytest
+pytest==9.1.1
+    # via
+    #   -c requirements/dev.txt
+    #   -r requirements/dev.in
     #   -r requirements/test.in
     #   locust
     #   pytest-cov
     #   pytest-django
-pytest-cov==7.0.0
-    # via -r requirements/test.in
-pytest-django==4.11.1
-    # via -r requirements/test.in
+    #   pytest-mock
+pytest-cov==7.1.0
+    # via
+    #   -c requirements/dev.txt
+    #   -r requirements/dev.in
+    #   -r requirements/test.in
+pytest-django==4.14.0
+    # via
+    #   -c requirements/dev.txt
+    #   -r requirements/dev.in
+    #   -r requirements/test.in
+pytest-mock==3.15.1
+    # via
+    #   -c requirements/dev.txt
+    #   -r requirements/dev.in
+    #   -r requirements/test.in
 python-dateutil==2.9.0.post0
     # via
     #   -c requirements/base.txt
@@ -292,7 +324,6 @@ tzdata==2025.3
     # via
     #   -c requirements/base.txt
     #   -c requirements/dev.txt
-    #   faker
     #   kombu
 tzlocal==5.3.1
     # via
