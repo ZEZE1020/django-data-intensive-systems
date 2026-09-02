@@ -4,7 +4,8 @@ A comprehensive reference repository demonstrating best practices for building l
 
 ## Features
 
-*   **Multi-tenant Architecture:** Implemented through a robust `core` application, providing isolated data management for different tenants.
+*   **Quality Engineering focus:** A layered pytest suite validates API contracts, negative paths, boundary values, authentication, and regression behavior.
+*   **Access policy validation:** Tenant-aware managers and cross-tenant API tests protect data isolation rules.
 *   **Modular Django Applications:**
     *   `orders`: Handles order processing and management for an e-commerce or POS system.
     *   `sensors`: Manages ingestion and processing of data from various sensors.
@@ -12,7 +13,33 @@ A comprehensive reference repository demonstrating best practices for building l
 *   **Asynchronous Processing:** Leverages Celery for background tasks and event-driven workflows.
 *   **Containerized Development & Deployment:** Utilizes Docker and Docker Compose for consistent environments across development and production.
 *   **Comprehensive Configuration:** Separate settings for development and production environments.
-*   **Code Quality & Testing:** Includes `pytest` for testing and `pyproject.toml` for dependency management.
+*   **CI/CD quality gates:** GitHub Actions runs flake8 and the Compose-backed test suite on changes to `main`.
+*   **Code Quality & Testing:** Includes pytest, pytest-django, pytest-mock, factory_boy, coverage, and Locust load testing.
+
+## QA & Test Automation
+
+The `tests/` suite covers orders and sensors APIs with valid and invalid payloads, missing authentication, boundary values, response contracts, and persistence assertions. Dedicated tenant tests are **Validating data access policies and isolation rules**, ensuring one tenant cannot read or modify another tenant's records.
+
+Run the same suite locally used in CI:
+
+```bash
+docker-compose up -d db redis
+docker-compose exec web pytest -v
+```
+
+For a fresh stack, use `docker-compose up --build` first.
+
+## API Documentation and QA Evidence
+
+The OpenAPI contract and interactive documentation are available when the stack is running:
+
+* `http://localhost:8000/api/docs/` - Swagger UI
+* `http://localhost:8000/api/redoc/` - ReDoc
+* `http://localhost:8000/api/schema/` - OpenAPI document
+
+Pushes to `main` publish the QA evidence workflow to GitHub Pages. It collects JUnit test results, HTML coverage, Locust performance output, and a Python profiling artifact. Pull requests keep the fast lint and regression gates; longer performance evidence runs on `main` or by manual dispatch.
+
+The current deliberate follow-up areas are distributed tracing, queue metrics, database partitioning, and payment retry orchestration. They remain separate from the core CI gate until their operational contracts and tests are defined.
 
 ## Getting Started
 

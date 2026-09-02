@@ -1,0 +1,75 @@
+name: QA Evidence
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * 0'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: qa-evidence-pages
+  cancel-in-progress: true
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install reporting tools
+        run: python -m pip install --upgrade pip && pip install -r requirements/test.txt py-spy
+      - name: Start Compose application
+        run: |
+          printf 'SECRET_KEY=test-secret-key\n' > .env
+          mkdir -p site/reports site/performance
+          chmod -R 777 site
+          docker compose up -d db redis web
+          timeout 90 sh -c 'until curl --fail --silent http://localhost:8000/health/; do sleep 2; done'
+      - name: Run tests and collect reports
+        run: |
+          docker compose exec -T web pytest -v \
+            --junitxml=/home/appuser/app/site/reports/junit.xml \
+            --cov-report=html:/home/appuser/app/site/reports/coverage \
+            --cov-report=xml:/home/appuser/app/site/reports/coverage.xml
+      - name: Run Locust smoke load test
+        run: |
+          docker compose run --rm locust locust -f scripts/load_test.py \
+            --headless -u 10 -r 2 --run-time 30s --host http://web:8000 \
+            --html=/home/appuser/app/site/reports/locust.html \
+            --csv=/home/appuser/app/site/reports/locust
+      - name: Capture Python flame graph
+        run: |
+          py-spy record --format flamegraph --output site/performance/flamegraph.svg \
+            -- python manage.py check
+      - name: Build QA index
+        run: |
+          cat > site/index.html <<'EOF'
+          <!doctype html>
+          <html lang="en"><head><meta charset="utf-8"><title>QA Evidence</title></head>
+          <body><h1>QA Evidence</h1>
+          <ul><li><a href="reports/coverage/index.html">Coverage report</a></li>
+          <li><a href="reports/locust.html">Locust load report</a></li>
+          <li><a href="performance/flamegraph.svg">Python flame graph</a></li>
+          <li><a href="reports/junit.xml">JUnit test report</a></li></ul></body></html>
+          EOF
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Stop Compose services
+        if: always()
+        run: docker compose down -v
