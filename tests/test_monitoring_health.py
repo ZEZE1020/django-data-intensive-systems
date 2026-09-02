@@ -4,7 +4,7 @@ Covers all health, readiness, and liveness probes to ensure they work as expecte
 """
 import pytest
 from django.test import Client
-from django.urls import reverse
+from django.contrib.auth import get_user_model
 
 @pytest.mark.django_db
 def test_health_endpoint_returns_200():
@@ -40,6 +40,10 @@ def test_liveness_endpoint_always_returns_200():
 def test_metrics_endpoint_returns_prometheus_data():
     """Test that Prometheus metrics endpoint exports all expected metrics."""
     client = Client()
+    staff_user = get_user_model().objects.create_user(
+        username='metrics-staff', password='testpass123', is_staff=True
+    )
+    client.force_login(staff_user)
     response = client.get('/metrics/')
     
     assert response.status_code == 200

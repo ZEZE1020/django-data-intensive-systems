@@ -3,6 +3,7 @@ API tests for the sensors application.
 Covers all CRUD operations for devices and sensor readings, including edge cases.
 """
 import pytest
+from uuid import UUID
 from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework import status
@@ -15,11 +16,12 @@ User = get_user_model()
 class TestSensorsAPI:
     def setup_method(self):
         """Setup test user and client for all sensor API tests."""
-        self.user = User.objects.create_user(username='testuser', password='testpass123')
+        self.tenant_id = UUID('11111111-1111-1111-1111-111111111111')
+        self.user = User.objects.create_user(
+            username='testuser', password='testpass123', tenant_id=str(self.tenant_id)
+        )
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
-        self.tenant_id = 'test-tenant-123'
-        
         # Create test device
         self.device = Device.objects.create(
             device_id='test-device-001',
@@ -31,7 +33,7 @@ class TestSensorsAPI:
 
     def test_list_devices_authenticated(self):
         """Test that authenticated users can list their devices."""
-        response = self.client.get('/api/sensors/', HTTP_X_TENANT_ID=self.tenant_id)
+        response = self.client.get('/api/sensors/devices/')
         assert response.status_code == status.HTTP_200_OK
         assert len(response.json()) >= 1
 
@@ -48,7 +50,7 @@ class TestSensorsAPI:
             HTTP_X_TENANT_ID=self.tenant_id
         )
         assert response.status_code == status.HTTP_201_CREATED
-        assert SensorReading.objects.count() == 1
+        assert SensorReading.objects.without_tenant_filter().count() == 1
 
     def test_create_sensor_reading_invalid_value(self):
         """Test edge case: invalid temperature value returns error."""
@@ -80,5 +82,19 @@ class TestSensorsAPI:
     def test_unauthorized_access_blocked(self):
         """Test that unauthenticated users cannot access sensor data."""
         self.client.logout()
-        response = self.client.get('/api/sensors/')
+        response = self.client.get('/api/sensors/devices/')
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_tenant_cannot_read_another_tenants_device(self):
+        """Validating data access policies and isolation rules."""
+        other_device = Device.objects.create(
+            device_id='other-device-001',
+            name='Other tenant device',
+            device_type='temperature',
+            location='Other lab',
+            tenant_id=UUID('22222222-2222-2222-2222-222222222222'),
+        )
+
+        response = self.client.get(f'/api/sensors/devices/{other_device.pk}/')
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
