@@ -40,8 +40,10 @@ INSTALLED_APPS = [
 
     # Third-party
     'rest_framework',
+    'drf_spectacular',
     'corsheaders',  # Added for CORS support
     'csp',          # Added for Content Security Policy
+    'django_celery_beat',
 
     # Project apps (order matters for migrations)
     'apps.sensors.apps.SensorsConfig',
@@ -205,6 +207,7 @@ LOGGING = {
 
 # REST Framework configuration
 REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
     ],
@@ -225,6 +228,13 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
     ],
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Django Data Intensive Systems API',
+    'DESCRIPTION': 'Sensor ingestion and order management API.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
 
 # Redis configuration
@@ -272,11 +282,15 @@ SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = 'DENY'
 
 # Content Security Policy (CSP) Defaults
-CSP_DEFAULT_SRC = ("'self'",)
-CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
-CSP_SCRIPT_SRC = ("'self'",)
-CSP_IMG_SRC = ("'self'", "data:")
-CSP_FONT_SRC = ("'self'",)
+CONTENT_SECURITY_POLICY = {
+    'DIRECTIVES': {
+        'default-src': ("'self'",),
+        'style-src': ("'self'", "'unsafe-inline'"),
+        'script-src': ("'self'",),
+        'img-src': ("'self'", 'data:'),
+        'font-src': ("'self'",),
+    },
+}
 
 # CORS Defaults
 CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:3000').split(',')

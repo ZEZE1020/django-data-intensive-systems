@@ -17,6 +17,7 @@ ENV PYTHONUNBUFFERED=1
 RUN rm -rf /opt/venv
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
+ENV VIRTUAL_ENV="/opt/venv"
 
 # Install uv, the fast package installer
 RUN pip install uv

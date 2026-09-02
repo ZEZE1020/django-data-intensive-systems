@@ -43,14 +43,12 @@ htmlcov/
 *.iml
 .pylintrc
 
-# Testing
+# Local caches
 .pytest_cache
 .mypy_cache
 .dmypy.json
 dmypy.json
 .pyre/
-tests/
-pytest.ini
 
 # Development
 .env

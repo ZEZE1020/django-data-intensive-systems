@@ -114,7 +114,4 @@ def configure_json_logging(logger_name: str = None) -> logging.Logger:
     return logger
 
 
-# TODO: Add correlation ID tracking
-# TODO: Add request context (user, IP, path)
-# TODO: Add performance metrics (duration, memory)
 # TODO: Integrate with log aggregation (ELK, Datadog, etc.)

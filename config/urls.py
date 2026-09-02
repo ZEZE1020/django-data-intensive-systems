@@ -10,6 +10,7 @@ import os
 from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 urlpatterns = [
     # Admin interface
@@ -21,10 +22,10 @@ urlpatterns = [
     # App-specific URLs
     path('api/sensors/', include('apps.sensors.urls')),
     path('api/orders/', include('apps.orders.urls')),
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]
-
-# TODO: Add API documentation endpoint (requires coreapi)
-# path('api/docs/', include_docs_urls(...))
 
 # Debug toolbar in development
 if settings.DEBUG:
@@ -33,6 +34,5 @@ if settings.DEBUG:
         path('__debug__/', include(debug_toolbar.urls)),
     ] + urlpatterns
 
-# TODO: Add API versioning strategy (e.g., /api/v1/, /api/v2/)
-# TODO: Add pagination documentation
-# TODO: Add API error response documentation
+# End of URL configuration.
+

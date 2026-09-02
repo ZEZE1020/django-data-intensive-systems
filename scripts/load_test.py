@@ -23,8 +23,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.development")
 django.setup()
 
-from django.contrib.auth import get_user_model
-from apps.sensors.models import Device
+from django.contrib.auth import get_user_model  # noqa: E402
+from apps.sensors.models import Device  # noqa: E402
 
 User = get_user_model()
 
@@ -47,10 +47,13 @@ class WebUser(FastHttpUser):
             self.password = "testpass123"
             
             # Create Django User
-            self.user = User.objects.create_user(username=self.username, password=self.password)
-            
             # Generate a Tenant ID (simulating multi-tenancy)
             self.tenant_id = str(uuid.uuid4())
+            self.user = User.objects.create_user(
+                username=self.username,
+                password=self.password,
+                tenant_id=self.tenant_id,
+            )
 
             # Configure Headers (FastHttpUser does not support client.headers)
             auth_string = f"{self.username}:{self.password}"
@@ -87,7 +90,11 @@ class WebUser(FastHttpUser):
         """
         Task to simulate a user listing sensor readings.
         """
-        self.client.get("/api/sensors/", name="/api/sensors/ [list]", headers=getattr(self, 'default_headers', {}))
+        self.client.get(
+            "/api/sensors/devices/",
+            name="/api/sensors/devices/ [list]",
+            headers=getattr(self, 'default_headers', {}),
+        )
 
     @tag('write')
     @task(5)
