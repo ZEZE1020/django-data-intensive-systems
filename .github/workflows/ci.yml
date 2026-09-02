@@ -28,5 +28,18 @@ jobs:
       - name: Run pytest in Compose
         run: |
           printf 'SECRET_KEY=test-secret-key\n' > .env
+          mkdir -p logs
+          chmod -R 777 logs
+          mkdir -p artifacts
+          chmod 777 artifacts
           docker compose build web
-          docker compose run --rm web pytest -v
+          docker compose run --rm web pytest -v \
+            --junitxml=artifacts/junit.xml \
+            --cov-report=xml:artifacts/coverage.xml
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-${{ github.sha }}
+          path: artifacts/
