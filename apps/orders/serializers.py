@@ -123,6 +123,7 @@ class OrderCreateSerializer(serializers.Serializer):
     def create(self, validated_data):
         """Create order with line items."""
         line_items_data = validated_data.pop('line_items')
+        tenant_id = validated_data.get('tenant_id')
 
         # Generate order number
         from apps.core.utils import generate_reference_code
@@ -143,6 +144,6 @@ class OrderCreateSerializer(serializers.Serializer):
 
         # Create line items
         for item_data in line_items_data:
-            OrderLineItem.objects.create(order=order, **item_data)
+            OrderLineItem.objects.create(order=order, tenant_id=tenant_id, **item_data)
 
         return order

@@ -41,6 +41,14 @@ def clear_current_tenant():
         del _thread_tenant.tenant_id
 
 
+class TenantContextViewSetMixin:
+    """Set tenant context after DRF has authenticated the request."""
+
+    def initial(self, request, *args, **kwargs):
+        super().initial(request, *args, **kwargs)
+        set_current_tenant(getattr(request.user, 'tenant_id', None))
+
+
 @contextmanager
 def tenant_context(tenant_id):
     """

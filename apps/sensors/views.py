@@ -26,9 +26,10 @@ from apps.sensors.serializers import (
     SensorReadingBulkSerializer,
     SensorAggregateSerializer,
 )
+from apps.core.tenant_context import TenantContextViewSetMixin
 
 
-class DeviceViewSet(viewsets.ModelViewSet):
+class DeviceViewSet(TenantContextViewSetMixin, viewsets.ModelViewSet):
     """
     ViewSet for sensor devices.
 
@@ -49,7 +50,7 @@ class DeviceViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated] # Add permission class
 
 
-class SensorReadingViewSet(viewsets.ModelViewSet):
+class SensorReadingViewSet(TenantContextViewSetMixin, viewsets.ModelViewSet):
     """
     ViewSet for sensor readings.
 
@@ -66,6 +67,9 @@ class SensorReadingViewSet(viewsets.ModelViewSet):
     search_fields = ['device__name', 'device__device_id']
     ordering = ['-created_at']
     permission_classes = [IsAuthenticated] # Add permission class
+
+    def perform_create(self, serializer):
+        serializer.save(tenant_id=self.request.user.tenant_id)
 
     def create(self, request, *args, **kwargs):
         """Create single reading and update device's last_reading_at."""
@@ -107,7 +111,7 @@ class SensorReadingViewSet(viewsets.ModelViewSet):
 
         # Create readings in batch
         readings = [
-            SensorReading(device=device, **reading_data)
+            SensorReading(device=device, tenant_id=request.user.tenant_id, **reading_data)
             for reading_data in serializer.validated_data['readings']
         ]
         created = SensorReading.objects.bulk_create(
@@ -128,7 +132,7 @@ class SensorReadingViewSet(viewsets.ModelViewSet):
         )
 
 
-class SensorAggregateViewSet(viewsets.ReadOnlyModelViewSet):
+class SensorAggregateViewSet(TenantContextViewSetMixin, viewsets.ReadOnlyModelViewSet):
     """
     Read-only ViewSet for sensor aggregates.
 

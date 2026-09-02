@@ -23,9 +23,10 @@ from apps.orders.serializers import (
     OrderCreateSerializer,
     PaymentSerializer,
 )
+from apps.core.tenant_context import TenantContextViewSetMixin
 
 
-class OrderViewSet(viewsets.ModelViewSet):
+class OrderViewSet(TenantContextViewSetMixin, viewsets.ModelViewSet):
     """
     ViewSet for orders.
 
@@ -50,6 +51,15 @@ class OrderViewSet(viewsets.ModelViewSet):
         if self.action == 'create':
             return OrderCreateSerializer
         return OrderSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(tenant_id=self.request.user.tenant_id)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(OrderSerializer(serializer.instance).data, status=status.HTTP_201_CREATED)
 
     def perform_update(self, serializer):
         """Handle optimistic locking on update."""
