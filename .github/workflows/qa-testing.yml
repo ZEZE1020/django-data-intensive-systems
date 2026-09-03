@@ -61,7 +61,7 @@ jobs:
           SECRET_KEY: test-secret-key-12345
         run: |
           uv run python manage.py migrate
-          uv run pytest -m "api or integration" -v
+          uv run pytest -m "api or integration" --no-cov -v
 
   ui-visual-regression:
     name: UI Visual Regression & Manual Test Case Validation
@@ -77,7 +77,7 @@ jobs:
   defect-tracking-integration:
     name: Sync Test Results to Issue Tracker
     runs-on: ubuntu-latest
-    if: failure()
+    if: ${{ failure() && secrets.JIRA_TOKEN != '' && secrets.JIRA_USERNAME != '' && secrets.JIRA_URL != '' }}
     needs: [api-testing, ui-visual-regression]
     steps:
       - name: Create Jira issue for test failures
