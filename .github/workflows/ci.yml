@@ -33,8 +33,9 @@ jobs:
           mkdir -p artifacts
           chmod 777 artifacts
           docker compose build web
-          docker compose run --rm web pytest -v \
+          docker compose run --rm -e COVERAGE_FILE=/home/appuser/app/artifacts/.coverage web pytest -v \
             --junitxml=artifacts/junit.xml \
+            --cov-report=html:artifacts/htmlcov \
             --cov-report=xml:artifacts/coverage.xml
 
       - name: Upload test reports
