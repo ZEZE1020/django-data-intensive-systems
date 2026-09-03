@@ -32,6 +32,8 @@ jobs:
       - name: Start Compose application
         run: |
           printf 'SECRET_KEY=test-secret-key\n' > .env
+          mkdir -p logs
+          chmod -R 777 logs
           mkdir -p site/reports site/performance
           chmod -R 777 site
           docker compose up -d db redis web
@@ -44,7 +46,7 @@ jobs:
           }
       - name: Run tests and collect reports
         run: |
-          docker compose exec -T web pytest -v \
+          docker compose exec -T -e COVERAGE_FILE=/home/appuser/app/site/reports/.coverage web pytest -v \
             --junitxml=/home/appuser/app/site/reports/junit.xml \
             --cov-report=html:/home/appuser/app/site/reports/coverage \
             --cov-report=xml:/home/appuser/app/site/reports/coverage.xml
